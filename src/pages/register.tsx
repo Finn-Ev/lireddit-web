@@ -17,9 +17,27 @@ const Register: React.FC<registerProps> = ({}) => {
   return (
     <Wrapper variant="small">
       <Formik
-        initialValues={{ username: "", email: "", password: "" }}
+        initialValues={{
+          username: "",
+          email: "",
+          password: "",
+          repeatPassword: "",
+        }}
         onSubmit={async (values, { setErrors }) => {
-          const res = await register({ options: values });
+          if (values.password != values.repeatPassword) {
+            setErrors(
+              toErrorMap([
+                { field: "repeatPassword", message: "Passwords don't match" },
+              ])
+            );
+          }
+          const res = await register({
+            options: {
+              email: values.email,
+              password: values.password,
+              username: values.username,
+            },
+          });
           console.log(res);
           if (res.data?.register.errors) {
             setErrors(toErrorMap(res.data.register.errors));
@@ -50,6 +68,14 @@ const Register: React.FC<registerProps> = ({}) => {
                 label="Password"
                 type="password"
               />
+              <Box mt={2}>
+                <InputField
+                  name="repeatPassword"
+                  placeholder="Repeat password"
+                  label="Repeat Password"
+                  type="password"
+                />
+              </Box>
             </Box>
             <Button
               mt={4}
